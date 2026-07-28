@@ -11,9 +11,12 @@
 1. 安装 Fabric Loader 和 Fabric API
 2. 将模组放入 `mods` 文件夹
 
-## 自定义
+## 指令
+/ciallo camera movie enable <Height> <Speed> <HideHand>	开启电影模式
+/ciallo camera movie disable <Speed>	关闭电影模式
+/ciallo head lock <Yaw> <Pitch>	锁定头部
+/ciallo head unlock	解锁头部
 
-可在配置文件中调整黑边高度和快捷键。
 
 ## 开发
 AI写的。
