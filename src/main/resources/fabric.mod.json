@@ -1,0 +1,37 @@
+{
+	"schemaVersion": 1,
+	"id": "ciallo-mine-camera",
+	"version": "${version}",
+	"name": "Ciallo Mine Camera",
+	"description": "Cinema mode with black bars and HUD hiding — /ciallo camera enable <height> <speed> <hideHand>",
+	"authors": [
+		"sisariku"
+	],
+	"contact": {
+		"homepage": "https://github.com/sisariku/ciallo-mine-camera",
+		"sources": "https://github.com/sisariku/ciallo-mine-camera"
+	},
+	"license": "MIT",
+	"icon": "assets/ciallo-mine-camera/icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.sisariku.ciallomine.CialloMineCamera"
+		],
+		"client": [
+			"com.sisariku.ciallomine.CialloMineCameraClient"
+		],
+		"fabric-datagen": [
+			"com.sisariku.ciallomine.CialloMineCameraDataGenerator"
+		]
+	},
+	"mixins": [
+		"ciallo-mine-camera.mixins.json"
+	],
+	"depends": {
+		"fabricloader": ">=0.19.3",
+		"minecraft": "~1.21.1",
+		"java": ">=21",
+		"fabric-api": "*"
+	}
+}

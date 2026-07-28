@@ -1,0 +1,119 @@
+package com.sisariku.ciallomine;
+
+import com.mojang.brigadier.arguments.BoolArgumentType;
+import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.context.CommandContext;
+import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
+import net.fabricmc.fabric.api.networking.v1.PayloadTypeRegistry;
+import net.fabricmc.fabric.api.networking.v1.ServerPlayNetworking;
+import net.minecraft.server.command.CommandManager;
+import net.minecraft.server.command.ServerCommandSource;
+import net.minecraft.server.network.ServerPlayerEntity;
+import net.minecraft.text.Text;
+
+public class CialloMineCamera implements ModInitializer {
+    public static final String MOD_ID = "ciallo-mine-camera";
+
+    @Override
+    public void onInitialize() {
+        PayloadTypeRegistry.playS2C().register(CinemaModePayload.ID, CinemaModePayload.CODEC);
+
+        CommandRegistrationCallback.EVENT.register((dispatcher, registryAccess, environment) -> {
+            dispatcher.register(
+                CommandManager.literal("ciallo")
+                    .then(CommandManager.literal("camera")
+                        .then(CommandManager.literal("movie")
+                            .then(buildEnable())
+                            .then(buildDisable())
+                        ).then(CommandManager.literal("head")
+                                    .then(buildLock())
+                                    .then(buildUnlock())
+                            )
+
+                    )
+            );
+        });
+    }
+
+    private static com.mojang.brigadier.builder.ArgumentBuilder<ServerCommandSource, ?> buildEnable() {
+        var cfg = CameraConfig.get();
+        var enable = CommandManager.literal("enable")
+            .executes(ctx -> doEnable(ctx, cfg.defaultHeight, cfg.defaultSpeed, cfg.defaultHideHand));
+
+        var height = CommandManager.argument("height", FloatArgumentType.floatArg(0.1f, 16f))
+            .executes(ctx -> doEnable(ctx,
+                FloatArgumentType.getFloat(ctx, "height"), cfg.defaultSpeed, cfg.defaultHideHand));
+
+        var speed = CommandManager.argument("speed", FloatArgumentType.floatArg(0.1f, 99f))
+            .executes(ctx -> doEnable(ctx,
+                FloatArgumentType.getFloat(ctx, "height"), FloatArgumentType.getFloat(ctx, "speed"), cfg.defaultHideHand));
+
+        var hideHand = CommandManager.argument("hideHand", BoolArgumentType.bool())
+            .executes(ctx -> doEnable(ctx,
+                FloatArgumentType.getFloat(ctx, "height"), FloatArgumentType.getFloat(ctx, "speed"), BoolArgumentType.getBool(ctx, "hideHand")));
+
+        speed.then(hideHand);
+        height.then(speed);
+        enable.then(height);
+        return enable;
+    }
+
+    private static com.mojang.brigadier.builder.ArgumentBuilder<ServerCommandSource, ?> buildDisable() {
+        var cfg = CameraConfig.get();
+        return CommandManager.literal("disable")
+            .executes(ctx -> doDisable(ctx, cfg.defaultDisableSpeed))
+            .then(CommandManager.argument("speed", FloatArgumentType.floatArg(0.1f, 99f))
+                .executes(ctx -> doDisable(ctx, FloatArgumentType.getFloat(ctx, "speed"))));
+    }
+
+    private static com.mojang.brigadier.builder.ArgumentBuilder<ServerCommandSource, ?> buildLock() {
+        var cfg = CameraConfig.get();
+        var lock = CommandManager.literal("lock")
+            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a头部锁定指令已发送"), true); return 1; });
+        var yaw = CommandManager.argument("yaw", FloatArgumentType.floatArg(-180f, 180f))
+            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a头部锁定指令已发送"), true); return 1; });
+        var pitch = CommandManager.argument("pitch", FloatArgumentType.floatArg(-90f, 90f))
+            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a头部锁定指令已发送"), true); return 1; });
+        yaw.then(pitch); lock.then(yaw);
+        return lock;
+    }
+
+    private static com.mojang.brigadier.builder.ArgumentBuilder<ServerCommandSource, ?> buildUnlock() {
+        return CommandManager.literal("unlock")
+            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a头部解锁指令已发送"), true); return 1; });
+    }
+
+    private static int doEnable(CommandContext<ServerCommandSource> ctx, float h, float s, boolean hide) {
+        var payload = new CinemaModePayload(h, s, hide, true);
+        ServerPlayerEntity player = ctx.getSource().getPlayer();
+        if (player != null) {
+            ServerPlayNetworking.send(player, payload);
+            ctx.getSource().sendFeedback(
+                () -> Text.literal("§a电影模式已开启 — 高度:" + fmt(h) + " 速度:" + fmt(s) + " 隐藏手臂:" + hide), true);
+        } else {
+            for (var p : ctx.getSource().getServer().getPlayerManager().getPlayerList())
+                ServerPlayNetworking.send(p, payload);
+            ctx.getSource().sendFeedback(() -> Text.literal("§a已对全体玩家开启电影模式"), true);
+        }
+        return 1;
+    }
+
+    private static int doDisable(CommandContext<ServerCommandSource> ctx, float spd) {
+        var payload = new CinemaModePayload(0, spd, false, false);
+        ServerPlayerEntity player = ctx.getSource().getPlayer();
+        if (player != null) {
+            ServerPlayNetworking.send(player, payload);
+            ctx.getSource().sendFeedback(() -> Text.literal("§c电影模式已关闭"), true);
+        } else {
+            for (var p : ctx.getSource().getServer().getPlayerManager().getPlayerList())
+                ServerPlayNetworking.send(p, payload);
+            ctx.getSource().sendFeedback(() -> Text.literal("§c已对全体玩家关闭电影模式"), true);
+        }
+        return 1;
+    }
+
+    private static String fmt(float v) {
+        return v == (int) v ? String.valueOf((int) v) : String.format("%.1f", v);
+    }
+}

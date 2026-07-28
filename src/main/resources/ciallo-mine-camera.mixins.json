@@ -1,0 +1,14 @@
+{
+	"required": true,
+	"package": "com.sisariku.ciallomine.mixin",
+	"compatibilityLevel": "JAVA_21",
+	"mixins": [],
+	"client": [
+		"InGameHudMixin",
+		"HeldItemRendererMixin",
+		"PlayerEntityModelMixin"
+	],
+	"injectors": {
+		"defaultRequire": 1
+	}
+}
