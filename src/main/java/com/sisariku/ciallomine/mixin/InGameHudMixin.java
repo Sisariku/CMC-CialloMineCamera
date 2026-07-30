@@ -42,25 +42,26 @@ public class InGameHudMixin {
         ci.cancel();
     }
 
-    /// 在黑边上渲染 title 和 actionbar（电影字幕效果）
     private void renderSubtitles(DrawContext ctx, int sw, int sh, int barPixels) {
         TextRenderer tr = MinecraftClient.getInstance().textRenderer;
-        int cx = sw / 2;
 
-        // title / subtitle —— 上黑边中间
+        // title
         if (title != null) {
-            int y = barPixels / 2 + 4;
-            ctx.drawCenteredTextWithShadow(tr, title, cx, y, 0xFFFFFFFF);
+            int x = (int)(sw / 2f + CinemaMode.titleX);
+            int y = (int)(barPixels / 2f + 4 + CinemaMode.titleY);
+            ctx.drawTextWithShadow(tr, title, x - tr.getWidth(title) / 2, y, 0xFFFFFFFF);
         }
+        // subtitle
         if (subtitle != null) {
-            int y = barPixels / 2 + 16;
-            ctx.drawCenteredTextWithShadow(tr, subtitle, cx, y, 0xFFFFFFFF);
+            int x = (int)(sw / 2f + CinemaMode.subtitleX);
+            int y = (int)(barPixels / 2f + 16 + CinemaMode.subtitleY);
+            ctx.drawTextWithShadow(tr, subtitle, x - tr.getWidth(subtitle) / 2, y, 0xFFFFFFFF);
         }
-
-        // actionbar —— 下黑边中间
+        // actionbar
         if (overlayMessage != null && barPixels > 0) {
-            int y = (int)(sh - barPixels / 2f + CameraConfig.get().actionbarOffset);
-            ctx.drawCenteredTextWithShadow(tr, overlayMessage, cx, y, 0xFFFFFFFF);
+            int x = (int)(sw / 2f + CinemaMode.actionbarX);
+            int y = (int)(sh - barPixels / 2f + CameraConfig.get().actionbarOffset + CinemaMode.actionbarY);
+            ctx.drawTextWithShadow(tr, overlayMessage, x - tr.getWidth(overlayMessage) / 2, y, 0xFFFFFFFF);
         }
     }
 }

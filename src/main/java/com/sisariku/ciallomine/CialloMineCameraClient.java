@@ -87,6 +87,77 @@ public class CialloMineCameraClient implements ClientModInitializer {
                                     })
                                 )
                             )
+
+                            // ── 字幕位置覆盖 ──
+                            .then(ClientCommandManager.literal("title")
+                                .then(ClientCommandManager.argument("x", FloatArgumentType.floatArg(-999f, 999f))
+                                    .then(ClientCommandManager.argument("y", FloatArgumentType.floatArg(-999f, 999f))
+                                        .executes(ctx -> {
+                                            float x = FloatArgumentType.getFloat(ctx, "x");
+                                            float y = FloatArgumentType.getFloat(ctx, "y");
+                                            CinemaMode.setTitleOverride(x, y, 0);
+                                            feedback(ctx.getSource(), "§aTitle 偏移: x=" + f(x) + " y=" + f(y) + " (永久)");
+                                            return 1;
+                                        })
+                                        .then(ClientCommandManager.argument("duration", FloatArgumentType.floatArg(0f))
+                                            .executes(ctx -> {
+                                                float x = FloatArgumentType.getFloat(ctx, "x");
+                                                float y = FloatArgumentType.getFloat(ctx, "y");
+                                                float d = FloatArgumentType.getFloat(ctx, "duration");
+                                                CinemaMode.setTitleOverride(x, y, (int)(d * 20));
+                                                feedback(ctx.getSource(), "§aTitle 偏移: x=" + f(x) + " y=" + f(y) + " 持续:" + f(d) + "s");
+                                                return 1;
+                                            })
+                                        )
+                                    )
+                                )
+                            )
+                            .then(ClientCommandManager.literal("subtitle")
+                                .then(ClientCommandManager.argument("x", FloatArgumentType.floatArg(-999f, 999f))
+                                    .then(ClientCommandManager.argument("y", FloatArgumentType.floatArg(-999f, 999f))
+                                        .executes(ctx -> {
+                                            float x = FloatArgumentType.getFloat(ctx, "x");
+                                            float y = FloatArgumentType.getFloat(ctx, "y");
+                                            CinemaMode.setSubtitleOverride(x, y, 0);
+                                            feedback(ctx.getSource(), "§aSubtitle 偏移: x=" + f(x) + " y=" + f(y) + " (永久)");
+                                            return 1;
+                                        })
+                                        .then(ClientCommandManager.argument("duration", FloatArgumentType.floatArg(0f))
+                                            .executes(ctx -> {
+                                                float x = FloatArgumentType.getFloat(ctx, "x");
+                                                float y = FloatArgumentType.getFloat(ctx, "y");
+                                                float d = FloatArgumentType.getFloat(ctx, "duration");
+                                                CinemaMode.setSubtitleOverride(x, y, (int)(d * 20));
+                                                feedback(ctx.getSource(), "§aSubtitle 偏移: x=" + f(x) + " y=" + f(y) + " 持续:" + f(d) + "s");
+                                                return 1;
+                                            })
+                                        )
+                                    )
+                                )
+                            )
+                            .then(ClientCommandManager.literal("actionbar")
+                                .then(ClientCommandManager.argument("x", FloatArgumentType.floatArg(-999f, 999f))
+                                    .then(ClientCommandManager.argument("y", FloatArgumentType.floatArg(-999f, 999f))
+                                        .executes(ctx -> {
+                                            float x = FloatArgumentType.getFloat(ctx, "x");
+                                            float y = FloatArgumentType.getFloat(ctx, "y");
+                                            CinemaMode.setActionbarOverride(x, y, 0);
+                                            feedback(ctx.getSource(), "§aActionbar 偏移: x=" + f(x) + " y=" + f(y) + " (永久)");
+                                            return 1;
+                                        })
+                                        .then(ClientCommandManager.argument("duration", FloatArgumentType.floatArg(0f))
+                                            .executes(ctx -> {
+                                                float x = FloatArgumentType.getFloat(ctx, "x");
+                                                float y = FloatArgumentType.getFloat(ctx, "y");
+                                                float d = FloatArgumentType.getFloat(ctx, "duration");
+                                                CinemaMode.setActionbarOverride(x, y, (int)(d * 20));
+                                                feedback(ctx.getSource(), "§aActionbar 偏移: x=" + f(x) + " y=" + f(y) + " 持续:" + f(d) + "s");
+                                                return 1;
+                                            })
+                                        )
+                                    )
+                                )
+                            )
                         )
 
                         // ── head ──
