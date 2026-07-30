@@ -82,8 +82,8 @@ public class CialloMineCamera implements ModInitializer {
         var enable = CommandManager.literal("enable")
             .executes(ctx -> doEnable(ctx, cfg.defaultHorizontal, cfg.defaultVertical, cfg.defaultSpeed, cfg.defaultHideHand));
 
-        var horizontal = CommandManager.argument("horizontal", FloatArgumentType.floatArg(0.1f, 16f));
-        var vertical = CommandManager.argument("vertical", FloatArgumentType.floatArg(0.1f, 16f))
+        var horizontal = CommandManager.argument("horizontal", FloatArgumentType.floatArg(0f, 16f));
+        var vertical = CommandManager.argument("vertical", FloatArgumentType.floatArg(0f, 16f))
             .executes(ctx -> doEnable(ctx,
                 FloatArgumentType.getFloat(ctx, "horizontal"), FloatArgumentType.getFloat(ctx, "vertical"), cfg.defaultSpeed, cfg.defaultHideHand));
 

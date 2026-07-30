@@ -39,8 +39,8 @@ public class CialloMineCameraClient implements ClientModInitializer {
                                     feedback(ctx.getSource(), "§a电影模式已开启 (默认值)");
                                     return 1;
                                 })
-                                .then(ClientCommandManager.argument("horizontal", FloatArgumentType.floatArg(0.1f, 16f))
-                                    .then(ClientCommandManager.argument("vertical", FloatArgumentType.floatArg(0.1f, 16f))
+                                .then(ClientCommandManager.argument("horizontal", FloatArgumentType.floatArg(0f, 16f))
+                                    .then(ClientCommandManager.argument("vertical", FloatArgumentType.floatArg(0f, 16f))
                                         .executes(ctx -> {
                                             float h = FloatArgumentType.getFloat(ctx, "horizontal");
                                             float v = FloatArgumentType.getFloat(ctx, "vertical");

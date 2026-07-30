@@ -27,6 +27,9 @@ public class CameraConfig {
     /// 航点平滑移动默认速度
     public float defaultWaypointSpeed = 3f;
 
+    /// actionbar 在下黑边上的垂直偏移（正=往下）
+    public float actionbarOffset = 4f;
+
     private static CameraConfig INSTANCE;
 
     public static CameraConfig get() {

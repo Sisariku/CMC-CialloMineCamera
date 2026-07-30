@@ -1,5 +1,6 @@
 package com.sisariku.ciallomine.mixin;
 
+import com.sisariku.ciallomine.CameraConfig;
 import com.sisariku.ciallomine.CinemaMode;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.font.TextRenderer;
@@ -58,7 +59,7 @@ public class InGameHudMixin {
 
         // actionbar —— 下黑边中间
         if (overlayMessage != null && barPixels > 0) {
-            int y = sh - barPixels / 2 + 4;
+            int y = (int)(sh - barPixels / 2f + CameraConfig.get().actionbarOffset);
             ctx.drawCenteredTextWithShadow(tr, overlayMessage, cx, y, 0xFFFFFFFF);
         }
     }
