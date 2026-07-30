@@ -46,17 +46,20 @@ public class InGameHudMixin {
         TextRenderer tr = MinecraftClient.getInstance().textRenderer;
         int cx = sw / 2;
 
+        // title / subtitle —— 上黑边中间
         if (title != null) {
-            int y = Math.max(barPixels / 2 - 8, 2);
-            ctx.drawCenteredTextWithShadow(tr, title, cx, y - 10, 0xFFFFFFFF);
+            int y = barPixels / 2 + 4;
+            ctx.drawCenteredTextWithShadow(tr, title, cx, y, 0xFFFFFFFF);
         }
         if (subtitle != null) {
-            int y = Math.max(barPixels / 2 - 8, 2);
-            ctx.drawCenteredTextWithShadow(tr, subtitle, cx, y + 4, 0xFFFFFFFF);
+            int y = barPixels / 2 + 16;
+            ctx.drawCenteredTextWithShadow(tr, subtitle, cx, y, 0xFFFFFFFF);
         }
-        if (overlayMessage != null) {
-            int y = sh - barPixels + Math.max(barPixels / 2 - 4, 2);
-            ctx.drawCenteredTextWithShadow(tr, overlayMessage, cx, y - 4, 0xFFFFFFFF);
+
+        // actionbar —— 下黑边中间
+        if (overlayMessage != null && barPixels > 0) {
+            int y = sh - barPixels / 2 + 4;
+            ctx.drawCenteredTextWithShadow(tr, overlayMessage, cx, y, 0xFFFFFFFF);
         }
     }
 }
