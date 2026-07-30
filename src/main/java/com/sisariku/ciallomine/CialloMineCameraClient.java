@@ -100,7 +100,9 @@ public class CialloMineCameraClient implements ClientModInitializer {
                                 .then(ClientCommandManager.argument("yaw", FloatArgumentType.floatArg(-180f, 180f))
                                     .executes(ctx -> {
                                         float y = FloatArgumentType.getFloat(ctx, "yaw");
-                                        HeadLockState.lock(y, 0f);
+                                        var p = MinecraftClient.getInstance().player;
+                                        float pt = p != null ? p.getPitch() : 0f;
+                                        HeadLockState.lock(y, pt, 0f, 0f);
                                         feedback(ctx.getSource(), "§a头部已锁定 — yaw:" + f(y));
                                         return 1;
                                     })
@@ -108,10 +110,31 @@ public class CialloMineCameraClient implements ClientModInitializer {
                                         .executes(ctx -> {
                                             float y = FloatArgumentType.getFloat(ctx, "yaw");
                                             float p = FloatArgumentType.getFloat(ctx, "pitch");
-                                            HeadLockState.lock(y, p);
+                                            HeadLockState.lock(y, p, 0f, 0f);
                                             feedback(ctx.getSource(), "§a头部已锁定 — yaw:" + f(y) + " pitch:" + f(p));
                                             return 1;
                                         })
+                                        .then(ClientCommandManager.argument("yawRange", FloatArgumentType.floatArg(-1f, 180f))
+                                            .executes(ctx -> {
+                                                float y = FloatArgumentType.getFloat(ctx, "yaw");
+                                                float p = FloatArgumentType.getFloat(ctx, "pitch");
+                                                float yr = FloatArgumentType.getFloat(ctx, "yawRange");
+                                                HeadLockState.lock(y, p, yr, 0f);
+                                                feedback(ctx.getSource(), "§a头部已锁定 — yaw:" + f(y) + " pitch:" + f(p) + " yawRange:" + f(yr));
+                                                return 1;
+                                            })
+                                            .then(ClientCommandManager.argument("pitchRange", FloatArgumentType.floatArg(-1f, 90f))
+                                                .executes(ctx -> {
+                                                    float y = FloatArgumentType.getFloat(ctx, "yaw");
+                                                    float p = FloatArgumentType.getFloat(ctx, "pitch");
+                                                    float yr = FloatArgumentType.getFloat(ctx, "yawRange");
+                                                    float pr = FloatArgumentType.getFloat(ctx, "pitchRange");
+                                                    HeadLockState.lock(y, p, yr, pr);
+                                                    feedback(ctx.getSource(), "§a头部已锁定 — yaw:" + f(y) + " pitch:" + f(p) + " yR:" + f(yr) + " pR:" + f(pr));
+                                                    return 1;
+                                                })
+                                            )
+                                        )
                                     )
                                 )
                             )

@@ -113,14 +113,20 @@ public class CialloMineCamera implements ModInitializer {
     }
 
     private static com.mojang.brigadier.builder.ArgumentBuilder<ServerCommandSource, ?> buildLock() {
-        var cfg = CameraConfig.get();
         var lock = CommandManager.literal("lock")
-            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a头部锁定指令已发送"), true); return 1; });
+            .executes(ctx -> fb(ctx, "§a头部锁定指令已发送"));
         var yaw = CommandManager.argument("yaw", FloatArgumentType.floatArg(-180f, 180f))
-            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a头部锁定指令已发送"), true); return 1; });
+            .executes(ctx -> fb(ctx, "§a头部锁定指令已发送"));
         var pitch = CommandManager.argument("pitch", FloatArgumentType.floatArg(-90f, 90f))
-            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a头部锁定指令已发送"), true); return 1; });
-        yaw.then(pitch); lock.then(yaw);
+            .executes(ctx -> fb(ctx, "§a头部锁定指令已发送"));
+        var yawRange = CommandManager.argument("yawRange", FloatArgumentType.floatArg(-1f, 180f))
+            .executes(ctx -> fb(ctx, "§a头部锁定指令已发送"));
+        var pitchRange = CommandManager.argument("pitchRange", FloatArgumentType.floatArg(-1f, 90f))
+            .executes(ctx -> fb(ctx, "§a头部锁定指令已发送"));
+        yawRange.then(pitchRange);
+        pitch.then(yawRange);
+        yaw.then(pitch);
+        lock.then(yaw);
         return lock;
     }
 
