@@ -205,14 +205,14 @@ public class CialloMineCameraClient implements ClientModInitializer {
                                     feedback(ctx.getSource(), "§a越肩视角已开启 (默认值)");
                                     return 1;
                                 })
-                                .then(ClientCommandManager.argument("distance", FloatArgumentType.floatArg(-10f, 10f))
+                                .then(ClientCommandManager.argument("distance", FloatArgumentType.floatArg(-99f, 99f))
                                     .executes(ctx -> {
                                         float d = FloatArgumentType.getFloat(ctx, "distance");
                                         OverShoulderState.enable(d, cfg.defaultShoulderOffset, cfg.defaultShoulderHeight);
                                         feedback(ctx.getSource(), "§a越肩视角已开启 — 距离:" + f(d));
                                         return 1;
                                     })
-                                    .then(ClientCommandManager.argument("offset", FloatArgumentType.floatArg(-10f, 10f))
+                                    .then(ClientCommandManager.argument("offset", FloatArgumentType.floatArg(-99f, 99f))
                                         .executes(ctx -> {
                                             float d = FloatArgumentType.getFloat(ctx, "distance");
                                             float o = FloatArgumentType.getFloat(ctx, "offset");
@@ -220,7 +220,7 @@ public class CialloMineCameraClient implements ClientModInitializer {
                                             feedback(ctx.getSource(), "§a越肩视角已开启 — 距离:" + f(d) + " 偏移:" + f(o));
                                             return 1;
                                         })
-                                        .then(ClientCommandManager.argument("height", FloatArgumentType.floatArg(-10f, 10f))
+                                        .then(ClientCommandManager.argument("height", FloatArgumentType.floatArg(-99f, 99f))
                                             .executes(ctx -> {
                                                 float d = FloatArgumentType.getFloat(ctx, "distance");
                                                 float o = FloatArgumentType.getFloat(ctx, "offset");
