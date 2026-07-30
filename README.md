@@ -5,13 +5,14 @@
 ## 功能
 
 - 🎬 **电影模式** — 上下 + 左右黑边遮幅，支持多比例构图，隐藏 HUD，平滑动画过渡
-- 📷 **越肩视角** — 第三人称相机偏移到角色侧后方，适合拍摄角色特写
-- 🔍 **镜头缩放** — FOV 缩放，支持平滑 / 直接两种模式，可按 C 键快速切换
-- 🧑 **头部锁定** — 锁定玩家模型头部朝向，独立于相机旋转
-- 📍 **航点系统** — 保存当前位置，平滑移动 / 列表 / 删除
-- 🖐️ **隐藏手持物品** — 电影模式下可选隐藏手中物品
-- 🌐 **服务端同步** — 管理员可通过服务端指令推送电影模式给玩家
-- ⚙️ **JSON 配置文件** — 自定义默认参数
+- 📝 **电影字幕** — 在黑边上直接渲染 title / subtitle / actionbar，可调位置和持续时长
+- 📷 **越肩视角** — 第三人称相机偏移到角色侧后方
+- 🔍 **镜头缩放** — FOV 缩放，支持平滑 / 直接两种模式，C 键快速切换
+- 🧑 **头部锁定** — 锁定玩家模型头部朝向，支持轴独立 + 死区范围
+- 📍 **航点系统** — 保存当前位置，平滑移动到指定航点
+- 🖐️ **隐藏手持物品** — 电影模式下可选隐藏
+- 🌐 **服务端同步** — OP 可推送电影模式给玩家
+- ⚙️ **JSON 配置** — 全部默认参数可自定义
 
 ## 使用方法
 
@@ -30,12 +31,25 @@
 
 | 参数 | 说明 | 范围 | 默认值 |
 |---|---|---|---|
-| `horizontal` | 左右黑边厚度 | 0.1 ~ 16 | 0 |
-| `vertical` | 上下黑边厚度 | 0.1 ~ 16 | 5.0 |
+| `horizontal` | 左右黑边厚度 | 0 ~ 16 | 0 |
+| `vertical` | 上下黑边厚度 | 0 ~ 16 | 5.0 |
 | `speed` | 动画速度 | 0.1 ~ 99 | 5.0 |
-| `hideHand` | 是否隐藏手中物品 | true / false | false |
+| `hideHand` | 隐藏手中物品 | true / false | false |
 
-> 不指定参数时使用配置文件中的默认值。`horizontal` 和 `vertical` 配合可实现任意画面比例遮罩（如 2.35:1 宽银幕、方形构图等）。
+### 电影字幕
+
+```
+/ciallo camera movie title <x> <y> <duration> <text>
+/ciallo camera movie subtitle <x> <y> <duration> <text>
+/ciallo camera movie actionbar <x> <y> <duration> <text>
+```
+
+| 参数 | 说明 | 范围 |
+|---|---|---|
+| `x` | 水平偏移（像素，0=居中，正=右，负=左） | -999 ~ 999 |
+| `y` | 垂直偏移（像素，正=下，负=上） | -999 ~ 999 |
+| `duration` | 显示时长（秒，0=永久） | ≥ 0 |
+| `text` | 文本内容（greedyString，支持中文和空格） | — |
 
 ### 越肩视角
 
@@ -46,25 +60,23 @@
 
 | 参数 | 说明 | 范围 | 默认值 |
 |---|---|---|---|
-| `distance` | 相机与玩家距离 | ≥ 0.1 | 2.5 |
-| `offset` | 水平偏移（+ 右侧，- 左侧） | -10 ~ 10 | 0.8 |
-| `height` | 垂直偏移 | -10 ~ 10 | 0.5 |
-
-> 开启时自动切换到第三人称背面视角。
+| `distance` | 相机与玩家距离 | -99 ~ 99 | 2.5 |
+| `offset` | 水平偏移（+ 右侧，- 左侧） | -99 ~ 99 | 0.8 |
+| `height` | 垂直偏移 | -99 ~ 99 | 0.5 |
 
 ### 头部锁定
 
 ```
-/ciallo camera head lock [<yaw>] [<pitch>]
+/ciallo camera head lock [<yaw>] [<pitch>] [<yawRange>] [<pitchRange>]
 /ciallo camera head unlock
 ```
 
 | 参数 | 说明 | 范围 |
 |---|---|---|
-| `yaw` | 水平朝向 | -180 ~ 180 |
-| `pitch` | 垂直朝向 | -90 ~ 90 |
-
-不指定参数时锁定当前视角。
+| `yaw` | 锁定偏航角 | -180 ~ 180 |
+| `pitch` | 锁定俯仰角 | -90 ~ 90 |
+| `yawRange` | 偏航允许偏差（0=锁死，>0=±范围，-1=不锁） | -1 ~ 180 |
+| `pitchRange` | 俯仰允许偏差（0=锁死，>0=±范围，-1=不锁） | -1 ~ 90 |
 
 ### 镜头缩放
 
@@ -79,9 +91,6 @@
 | `magnification` | 放大 / 缩小倍率 | ≥ 0.01 |
 | `speed` | 平滑过渡速度 | ≥ 0.01 |
 
-- `smooth`：平滑过渡到目标缩放
-- `direct`：立即切换（默认）
-
 ### 航点
 
 ```
@@ -92,27 +101,17 @@
 /ciallo waypoint goto <name> [<speed>]
 ```
 
-| 命令 | 说明 |
-|---|---|
-| `add` | 保存当前位置为航点（不指定名称时自动生成） |
-| `list` | 显示所有已保存的航点 |
-| `remove` | 删除指定航点 |
-| `clear` | 清除全部航点 |
-| `goto` | 平滑移动相机到指定航点 |
-
 航点保存在 `.minecraft/config/ciallo-mine-camera-waypoints.json`。
 
 ### 快捷键
 
 | 按键 | 功能 |
 |---|---|
-| **C** | 切换镜头缩放（开启 / 关闭上次参数） |
-
-> 可在「选项 → 按键设置 → 你好，我的相机！」中修改按键。
+| **C** | 切换镜头缩放 |
 
 ## 配置文件
 
-主配置文件位于 `.minecraft/config/ciallo-mine-camera.json`：
+`.minecraft/config/ciallo-mine-camera.json`：
 
 ```json
 {
@@ -124,32 +123,40 @@
   "defaultShoulderDistance": 2.5,
   "defaultShoulderOffset": 0.8,
   "defaultShoulderHeight": 0.5,
-  "defaultWaypointSpeed": 3.0
+  "defaultWaypointSpeed": 3.0,
+  "actionbarOffset": 4.0
 }
 ```
 
-| 字段 | 说明 |
-|---|---|
-| `defaultVertical` | 默认上下黑边厚度 |
-| `defaultHorizontal` | 默认左右黑边厚度 |
-| `defaultSpeed` | 默认动画速度 |
-| `defaultDisableSpeed` | 关闭动画的默认速度 |
-| `defaultHideHand` | 默认是否隐藏手持物品 |
-| `defaultShoulderDistance` | 越肩视角默认距离 |
-| `defaultShoulderOffset` | 越肩视角默认水平偏移 |
-| `defaultShoulderHeight` | 越肩视角默认垂直偏移 |
-| `defaultWaypointSpeed` | 航点移动默认速度 |
-
 ## 服务端同步
 
-服务端可通过相同指令结构将电影模式推送给玩家（需要 OP 权限）：
+OP 可通过服务端指令推送电影模式（不指定玩家 = 全体）：
 
 ```
 /ciallo camera movie enable <horizontal> <vertical> <speed> <hideHand>
 /ciallo camera movie disable [<speed>]
 ```
 
-不指定玩家时推送给全体玩家。
+## 更新日志
+
+### v0.1.0 → v0.1.1
+
+**新增**
+- 镜头缩放 (`/ciallo camera zoom`) + C 键切换
+- 越肩视角 (`/ciallo camera overshoulder`)
+- 航点系统 (`/ciallo waypoint`) — 保存 / 列表 / 删除 / 平滑移动
+- 双轴遮幅 — 电影模式支持上下 + 左右黑边
+- 头部锁定轴独立 + 死区范围 (`yawRange` / `pitchRange`)
+- 电影字幕 — 在黑边上直接渲染文本，支持位置和时长
+- 服务端同步 (CustomPayload S2C)
+- JSON 配置文件
+
+**修复**
+- `/gamerule sendCommandFeedback false` 现在正确静默反馈
+- 黑边最小值从 0.1 改为 0
+- 字幕不再依赖原版 `/title` timer，自管理倒计时
+- 大量 Tab 补全缺失（服务端 stub 补齐参数节点）
+- Camera Mixin 崩溃 `0xFFFFFFFF` → 改用安全的 `ClientPlayerEntityMixin`
 
 ## 开发
 
