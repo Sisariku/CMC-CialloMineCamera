@@ -2,6 +2,7 @@ package com.sisariku.ciallomine;
 
 import com.mojang.brigadier.arguments.BoolArgumentType;
 import com.mojang.brigadier.arguments.FloatArgumentType;
+import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.context.CommandContext;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
@@ -32,22 +33,41 @@ public class CialloMineCamera implements ModInitializer {
                         ).then(buildZoom())
                         .then(CommandManager.literal("overshoulder")
                             .then(CommandManager.literal("enable")
-                                .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a越肩视角指令已发送"), true); return 1; })
+                                .executes(ctx -> fb(ctx, "§a越肩视角指令已发送"))
+                                .then(CommandManager.argument("distance", FloatArgumentType.floatArg(-10f, 10f))
+                                    .executes(ctx -> fb(ctx, "§a越肩视角指令已发送"))
+                                    .then(CommandManager.argument("offset", FloatArgumentType.floatArg(-10f, 10f))
+                                        .executes(ctx -> fb(ctx, "§a越肩视角指令已发送"))
+                                        .then(CommandManager.argument("height", FloatArgumentType.floatArg(-10f, 10f))
+                                            .executes(ctx -> fb(ctx, "§a越肩视角指令已发送"))
+                                        )
+                                    )
+                                )
                             ).then(CommandManager.literal("disable")
-                                .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a越肩视角指令已发送"), true); return 1; })
+                                .executes(ctx -> fb(ctx, "§a越肩视角指令已发送"))
                             )
                         )
                     ).then(CommandManager.literal("waypoint")
                         .then(CommandManager.literal("add")
-                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
+                            .executes(ctx -> fb(ctx, "§a航点已保存"))
+                            .then(CommandManager.argument("name", StringArgumentType.word())
+                                .executes(ctx -> fb(ctx, "§a航点已保存"))
+                            )
                         ).then(CommandManager.literal("list")
-                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
+                            .executes(ctx -> fb(ctx, "§a航点列表"))
                         ).then(CommandManager.literal("remove")
-                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
+                            .then(CommandManager.argument("name", StringArgumentType.word())
+                                .executes(ctx -> fb(ctx, "§a航点已删除"))
+                            )
                         ).then(CommandManager.literal("clear")
-                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
-                        ).then(CommandManager.literal("goto")
-                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
+                            .executes(ctx -> fb(ctx, "§a全部航点已清除"))
+                        ).then(CommandManager.literal("play")
+                            .executes(ctx -> fb(ctx, "§a航点播放已发送"))
+                            .then(CommandManager.argument("speed", FloatArgumentType.floatArg(0.1f))
+                                .executes(ctx -> fb(ctx, "§a航点播放已发送"))
+                            )
+                        ).then(CommandManager.literal("stop")
+                            .executes(ctx -> fb(ctx, "§a航点停止已发送"))
                         )
                     )
             );
@@ -153,6 +173,11 @@ public class CialloMineCamera implements ModInitializer {
                 ServerPlayNetworking.send(p, payload);
             ctx.getSource().sendFeedback(() -> Text.literal("§c已对全体玩家关闭电影模式"), true);
         }
+        return 1;
+    }
+
+    private static int fb(CommandContext<ServerCommandSource> ctx, String msg) {
+        ctx.getSource().sendFeedback(() -> Text.literal(msg), true);
         return 1;
     }
 

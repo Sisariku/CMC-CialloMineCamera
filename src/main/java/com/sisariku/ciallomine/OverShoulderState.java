@@ -16,7 +16,7 @@ public class OverShoulderState {
 
     public static void enable(float dist, float off, float h) {
         enabled = true;
-        distance = Math.max(dist, 0.1f);
+        distance = Math.max(dist, -10f);
         offset   = off;
         height   = h;
         // 自动切到第三人称背面
