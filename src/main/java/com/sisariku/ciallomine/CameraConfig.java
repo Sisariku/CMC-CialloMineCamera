@@ -11,14 +11,21 @@ public class CameraConfig {
     private static final Path CONFIG_PATH = FabricLoader.getInstance()
             .getConfigDir().resolve("ciallo-mine-camera.json");
 
-    public float defaultHeight = 5.0f;
+    /// 上下黑边厚度默认值
+    public float defaultVertical = 5.0f;
+    /// 左右黑边厚度默认值
+    public float defaultHorizontal = 0f;
     public float defaultSpeed = 5.0f;
     public float defaultDisableSpeed = 5.0f;
     public boolean defaultHideHand = false;
 
-    public float defaultHeadX = 0f;
-    public float defaultHeadY = 0f;
-    public float defaultHeadZ = 0f;
+    /// 越肩视角默认值
+    public float defaultShoulderDistance = 2.5f;
+    public float defaultShoulderOffset = 0.8f;  // +右 -左
+    public float defaultShoulderHeight = 0.5f;
+
+    /// 航点平滑移动默认速度
+    public float defaultWaypointSpeed = 3f;
 
     private static CameraConfig INSTANCE;
 

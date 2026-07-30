@@ -3,11 +3,13 @@
 	"package": "com.sisariku.ciallomine.mixin",
 	"compatibilityLevel": "JAVA_21",
 	"mixins": [],
-	"client": [
-		"InGameHudMixin",
-		"HeldItemRendererMixin",
-		"PlayerEntityModelMixin"
-	],
+		"client": [
+			"InGameHudMixin",
+			"HeldItemRendererMixin",
+			"PlayerEntityModelMixin",
+			"GameRendererMixin",
+			"CameraMixin"
+		],
 	"injectors": {
 		"defaultRequire": 1
 	}

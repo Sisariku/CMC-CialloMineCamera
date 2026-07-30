@@ -27,10 +27,28 @@ public class CialloMineCamera implements ModInitializer {
                             .then(buildEnable())
                             .then(buildDisable())
                         ).then(CommandManager.literal("head")
-                                    .then(buildLock())
-                                    .then(buildUnlock())
+                            .then(buildLock())
+                            .then(buildUnlock())
+                        ).then(buildZoom())
+                        .then(CommandManager.literal("overshoulder")
+                            .then(CommandManager.literal("enable")
+                                .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a越肩视角指令已发送"), true); return 1; })
+                            ).then(CommandManager.literal("disable")
+                                .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a越肩视角指令已发送"), true); return 1; })
                             )
-
+                        )
+                    ).then(CommandManager.literal("waypoint")
+                        .then(CommandManager.literal("add")
+                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
+                        ).then(CommandManager.literal("list")
+                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
+                        ).then(CommandManager.literal("remove")
+                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
+                        ).then(CommandManager.literal("clear")
+                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
+                        ).then(CommandManager.literal("goto")
+                            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a航点指令已发送"), true); return 1; })
+                        )
                     )
             );
         });
@@ -39,23 +57,27 @@ public class CialloMineCamera implements ModInitializer {
     private static com.mojang.brigadier.builder.ArgumentBuilder<ServerCommandSource, ?> buildEnable() {
         var cfg = CameraConfig.get();
         var enable = CommandManager.literal("enable")
-            .executes(ctx -> doEnable(ctx, cfg.defaultHeight, cfg.defaultSpeed, cfg.defaultHideHand));
+            .executes(ctx -> doEnable(ctx, cfg.defaultHorizontal, cfg.defaultVertical, cfg.defaultSpeed, cfg.defaultHideHand));
 
-        var height = CommandManager.argument("height", FloatArgumentType.floatArg(0.1f, 16f))
+        var horizontal = CommandManager.argument("horizontal", FloatArgumentType.floatArg(0.1f, 16f));
+        var vertical = CommandManager.argument("vertical", FloatArgumentType.floatArg(0.1f, 16f))
             .executes(ctx -> doEnable(ctx,
-                FloatArgumentType.getFloat(ctx, "height"), cfg.defaultSpeed, cfg.defaultHideHand));
+                FloatArgumentType.getFloat(ctx, "horizontal"), FloatArgumentType.getFloat(ctx, "vertical"), cfg.defaultSpeed, cfg.defaultHideHand));
 
         var speed = CommandManager.argument("speed", FloatArgumentType.floatArg(0.1f, 99f))
             .executes(ctx -> doEnable(ctx,
-                FloatArgumentType.getFloat(ctx, "height"), FloatArgumentType.getFloat(ctx, "speed"), cfg.defaultHideHand));
+                FloatArgumentType.getFloat(ctx, "horizontal"), FloatArgumentType.getFloat(ctx, "vertical"),
+                FloatArgumentType.getFloat(ctx, "speed"), cfg.defaultHideHand));
 
         var hideHand = CommandManager.argument("hideHand", BoolArgumentType.bool())
             .executes(ctx -> doEnable(ctx,
-                FloatArgumentType.getFloat(ctx, "height"), FloatArgumentType.getFloat(ctx, "speed"), BoolArgumentType.getBool(ctx, "hideHand")));
+                FloatArgumentType.getFloat(ctx, "horizontal"), FloatArgumentType.getFloat(ctx, "vertical"),
+                FloatArgumentType.getFloat(ctx, "speed"), BoolArgumentType.getBool(ctx, "hideHand")));
 
         speed.then(hideHand);
-        height.then(speed);
-        enable.then(height);
+        vertical.then(speed);
+        horizontal.then(vertical);
+        enable.then(horizontal);
         return enable;
     }
 
@@ -84,13 +106,34 @@ public class CialloMineCamera implements ModInitializer {
             .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a头部解锁指令已发送"), true); return 1; });
     }
 
-    private static int doEnable(CommandContext<ServerCommandSource> ctx, float h, float s, boolean hide) {
-        var payload = new CinemaModePayload(h, s, hide, true);
+    private static com.mojang.brigadier.builder.ArgumentBuilder<ServerCommandSource, ?> buildZoom() {
+        var magBranch = CommandManager.argument("magnification", FloatArgumentType.floatArg(0.01f))
+            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a镜头缩放"), true); return 1; })
+            .then(CommandManager.literal("smooth")
+                .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a镜头缩放(平滑)"), true); return 1; })
+                .then(CommandManager.argument("smoothSpeed", FloatArgumentType.floatArg(0.01f))
+                    .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a镜头缩放(平滑)"), true); return 1; })
+                )
+            )
+            .then(CommandManager.literal("direct")
+                .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a镜头缩放(直接)"), true); return 1; })
+            );
+
+        var zoom = CommandManager.literal("zoom");
+        zoom.then(CommandManager.literal("in").then(magBranch));
+        zoom.then(CommandManager.literal("out").then(magBranch));
+        zoom.then(CommandManager.literal("reset")
+            .executes(ctx -> { ctx.getSource().sendFeedback(() -> Text.literal("§a镜头缩放已重置"), true); return 1; }));
+        return zoom;
+    }
+
+    private static int doEnable(CommandContext<ServerCommandSource> ctx, float h, float v, float s, boolean hide) {
+        var payload = new CinemaModePayload(h, v, s, hide, true);
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         if (player != null) {
             ServerPlayNetworking.send(player, payload);
             ctx.getSource().sendFeedback(
-                () -> Text.literal("§a电影模式已开启 — 高度:" + fmt(h) + " 速度:" + fmt(s) + " 隐藏手臂:" + hide), true);
+                () -> Text.literal("§a电影模式已开启 — 左右:" + fmt(h) + " 上下:" + fmt(v) + " 速度:" + fmt(s) + " 隐藏手臂:" + hide), true);
         } else {
             for (var p : ctx.getSource().getServer().getPlayerManager().getPlayerList())
                 ServerPlayNetworking.send(p, payload);
@@ -100,7 +143,7 @@ public class CialloMineCamera implements ModInitializer {
     }
 
     private static int doDisable(CommandContext<ServerCommandSource> ctx, float spd) {
-        var payload = new CinemaModePayload(0, spd, false, false);
+        var payload = new CinemaModePayload(0f, 0f, spd, false, false);
         ServerPlayerEntity player = ctx.getSource().getPlayer();
         if (player != null) {
             ServerPlayNetworking.send(player, payload);

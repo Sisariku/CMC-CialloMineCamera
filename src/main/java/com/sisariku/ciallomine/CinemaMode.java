@@ -1,88 +1,71 @@
 package com.sisariku.ciallomine;
 
-/**
- * Client-side cinema mode state singleton.
- * Tracks whether cinema mode is active, bar height, animation speed, and hand visibility.
- */
 public class CinemaMode {
     private static boolean enabled = false;
-    private static float targetHeight = 0f;      // 0–5, target bar height
-    private static float currentHeight = 0f;      // 0–5, animated current height
-    private static float animationSpeed = 1.0f;   // units per tick toward target
+    /// 上下黑边（垂直遮幅）厚度
+    private static float targetVertical = 0f;
+    private static float currentVertical = 0f;
+    /// 左右黑边（水平遮幅）厚度
+    private static float targetHorizontal = 0f;
+    private static float currentHorizontal = 0f;
+    private static float animationSpeed = 1.0f;
     private static boolean hideHand = false;
 
     public static boolean isEnabled() { return enabled; }
-    public static float getCurrentHeight() { return currentHeight; }
-    public static float getTargetHeight() { return targetHeight; }
+    public static float getCurrentVertical() { return currentVertical; }
+    public static float getCurrentHorizontal() { return currentHorizontal; }
     public static boolean shouldHideHand() { return enabled && hideHand; }
 
-    /** Enable cinema mode and set parameters. */
-    public static void enable(float height, float speed, boolean hide) {
+    /// @param horizontal 左右黑边厚度 (0~16)
+    /// @param vertical   上下黑边厚度 (0~16)
+    public static void enable(float horizontal, float vertical, float speed, boolean hide) {
         enabled = true;
-        targetHeight = Math.clamp(height, 0f, 16f);
+        targetHorizontal = Math.clamp(horizontal, 0f, 16f);
+        targetVertical   = Math.clamp(vertical,   0f, 16f);
         animationSpeed = Math.abs(speed);
         hideHand = hide;
-        System.out.println("[CialloCamera] enable() called: height=" + targetHeight
-            + " speed=" + animationSpeed + " hideHand=" + hideHand);
     }
 
-    /** Disable with specific speed. */
     public static void disable(float speed) {
-        targetHeight = 0f;
+        targetHorizontal = 0f;
+        targetVertical   = 0f;
         animationSpeed = Math.abs(speed);
-        System.out.println("[CialloCamera] disable(speed=" + speed + ") called");
     }
 
-    /** Disable using current speed. */
     public static void disable() {
-        targetHeight = 0f;
-        System.out.println("[CialloCamera] disable() called: targetHeight=0, speed=" + animationSpeed);
+        targetHorizontal = 0f;
+        targetVertical   = 0f;
     }
 
-    /**
-     * Tick the animation. Call each client tick.
-     * Moves currentHeight toward targetHeight at animationSpeed per tick.
-     */
     public static void tick() {
         if (!enabled) return;
 
-        float delta = animationSpeed * 0.05f; // smooth per-tick step
-        if (currentHeight < targetHeight) {
-            currentHeight = Math.min(currentHeight + delta, targetHeight);
-        } else if (currentHeight > targetHeight) {
-            currentHeight = Math.max(currentHeight - delta, targetHeight);
-        }
+        float delta = animationSpeed * 0.05f;
+        if (currentHorizontal < targetHorizontal)
+            currentHorizontal = Math.min(currentHorizontal + delta, targetHorizontal);
+        else if (currentHorizontal > targetHorizontal)
+            currentHorizontal = Math.max(currentHorizontal - delta, targetHorizontal);
 
-        // Log every 20 ticks (~1 sec) to show disable animation
-        if (tickCounter++ % 20 == 0) {
-            System.out.println("[CialloCamera] tick: enabled=" + enabled
-                + " curH=" + String.format("%.3f", currentHeight)
-                + " targetH=" + String.format("%.3f", targetHeight));
-        }
+        if (currentVertical < targetVertical)
+            currentVertical = Math.min(currentVertical + delta, targetVertical);
+        else if (currentVertical > targetVertical)
+            currentVertical = Math.max(currentVertical - delta, targetVertical);
 
-        // When target is 0 and animation completes, fully disable
-        if (targetHeight <= 0.001f && currentHeight <= 0.001f) {
-            System.out.println("[CialloCamera] tick: animation complete → finishDisable()");
+        if (targetHorizontal <= 0.001f && currentHorizontal <= 0.001f
+         && targetVertical   <= 0.001f && currentVertical   <= 0.001f)
             finishDisable();
-        }
     }
 
-    /** Called by the disable path when animation completes. */
     public static void finishDisable() {
-        System.out.println("[CialloCamera] finishDisable() — restoring HUD");
         enabled = false;
-        currentHeight = 0f;
-        targetHeight = 0f;
+        currentHorizontal = 0f; targetHorizontal = 0f;
+        currentVertical   = 0f; targetVertical   = 0f;
         hideHand = false;
     }
 
-    private static long tickCounter = 0;
-
-    /** Send feedback to the local player's chat (client-side only). */
     public static void logFeedback(String msg) {
         var client = net.minecraft.client.MinecraftClient.getInstance();
-        if (client.player != null) {
+        if (client.player != null)
             client.player.sendMessage(net.minecraft.text.Text.literal("§6[CialloCamera] §r" + msg), false);
-        }
     }
 }

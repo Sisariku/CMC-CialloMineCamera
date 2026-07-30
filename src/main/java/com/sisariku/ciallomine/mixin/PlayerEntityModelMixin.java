@@ -27,6 +27,7 @@ public class PlayerEntityModelMixin {
         // Net head yaw = target - body, wrapped to [-180,180] to prevent flip
         float netYaw = MathHelper.wrapDegrees(HeadLockState.getLockYaw() - bodyYaw);
 
+
         var self = (PlayerEntityModel<?>) (Object) this;
         self.head.yaw = netYaw * MathHelper.RADIANS_PER_DEGREE;
         self.head.pitch = HeadLockState.getPitchRadians();

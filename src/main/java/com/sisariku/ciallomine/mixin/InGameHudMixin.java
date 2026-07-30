@@ -16,21 +16,18 @@ public class InGameHudMixin {
     @Inject(method = "render", at = @At("HEAD"), cancellable = true)
     private void onRender(DrawContext context, RenderTickCounter tickCounter, CallbackInfo ci) {
         if (!CinemaMode.isEnabled()) return;
-
-        float h = CinemaMode.getCurrentHeight();
-        // Always log to console when this fires with cinema mode active
-        System.out.println("[CialloCamera] Mixin rendering: enabled=" + CinemaMode.isEnabled()
-            + " height=" + h + " targetH=" + CinemaMode.getTargetHeight());
-
-        if (h > 0.001f) {
-            var client = MinecraftClient.getInstance();
-            int sw = client.getWindow().getScaledWidth();
-            int sh = client.getWindow().getScaledHeight();
-            int bp = (int)(h * 8); // height 0–10 → 0–80 pixels per bar
-            context.fill(0, 0, sw, bp, 0xFF000000);
-            context.fill(0, sh - bp, sw, sh, 0xFF000000);
-        }
-
+        float v = CinemaMode.getCurrentVertical();
+        float h = CinemaMode.getCurrentHorizontal();
+        if (v < 0.001f && h < 0.001f) return;
+        var client = MinecraftClient.getInstance();
+        int sw = client.getWindow().getScaledWidth();
+        int sh = client.getWindow().getScaledHeight();
+        int bp = (int)(v * 8); // 上下黑边像素高度
+        int lr = (int)(h * 8); // 左右黑边像素宽度
+        context.fill(0,      0,       sw, bp,      0xFF000000); // 上
+        context.fill(0,      sh - bp, sw, sh,      0xFF000000); // 下
+        context.fill(0,      0,       lr, sh,      0xFF000000); // 左
+        context.fill(sw - lr, 0,      sw, sh,      0xFF000000); // 右
         ci.cancel();
     }
 }
