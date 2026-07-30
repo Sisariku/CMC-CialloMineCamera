@@ -285,23 +285,27 @@ public class CialloMineCameraClient implements ClientModInitializer {
                         .then(ClientCommandManager.literal("clear")
                             .executes(ctx -> { WaypointState.clear(); feedback(ctx.getSource(), "§a全部航点已清除"); return 1; })
                         )
-                        .then(ClientCommandManager.literal("play")
-                            .executes(ctx -> {
-                                boolean ok = WaypointState.play(cfg.defaultWaypointSpeed);
-                                feedback(ctx.getSource(), ok ? "§a航点播放开始" : "§c没有可播放的航点");
-                                return 1;
-                            })
-                            .then(ClientCommandManager.argument("speed", FloatArgumentType.floatArg(0.1f))
+                        .then(ClientCommandManager.literal("goto")
+                            .then(ClientCommandManager.argument("name", com.mojang.brigadier.arguments.StringArgumentType.word())
                                 .executes(ctx -> {
-                                    float spd = FloatArgumentType.getFloat(ctx, "speed");
-                                    boolean ok = WaypointState.play(spd);
-                                    feedback(ctx.getSource(), ok ? "§a航点播放开始 速度:" + f(spd) : "§c没有可播放的航点");
+                                    String name = com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "name");
+                                    boolean ok = WaypointState.gotoWaypoint(name, cfg.defaultWaypointSpeed);
+                                    feedback(ctx.getSource(), ok ? "§a正在移动到: " + name : "§c未找到航点: " + name);
                                     return 1;
                                 })
+                                .then(ClientCommandManager.argument("speed", FloatArgumentType.floatArg(0.1f))
+                                    .executes(ctx -> {
+                                        String name = com.mojang.brigadier.arguments.StringArgumentType.getString(ctx, "name");
+                                        float spd = FloatArgumentType.getFloat(ctx, "speed");
+                                        boolean ok = WaypointState.gotoWaypoint(name, spd);
+                                        feedback(ctx.getSource(), ok ? "§a正在移动到: " + name + " 速度:" + f(spd) : "§c未找到航点: " + name);
+                                        return 1;
+                                    })
+                                )
                             )
                         )
                         .then(ClientCommandManager.literal("stop")
-                            .executes(ctx -> { WaypointState.stopPlay(); feedback(ctx.getSource(), "§a航点播放已停止"); return 1; })
+                            .executes(ctx -> { WaypointState.stop(); feedback(ctx.getSource(), "§a移动已停止"); return 1; })
                         )
                     )
             );

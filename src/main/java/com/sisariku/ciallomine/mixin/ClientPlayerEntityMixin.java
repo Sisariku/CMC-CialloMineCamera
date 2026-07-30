@@ -8,19 +8,19 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-/// 航点播放时移动玩家实体位置（避免直接操作 Camera final 字段）
+/// 航点移动时平滑更新玩家位置
 @Mixin(ClientPlayerEntity.class)
 public class ClientPlayerEntityMixin {
 
     @Inject(method = "tick", at = @At("TAIL"))
     private void onTick(CallbackInfo ci) {
-        if (!WaypointState.isPlaying()) return;
-        Vec3d pos = WaypointState.getPlayPos();
+        if (!WaypointState.isMoving()) return;
+        Vec3d pos = WaypointState.getMovePos();
         if (pos != null) {
             var self = (ClientPlayerEntity)(Object)this;
             self.setPos(pos.x, pos.y, pos.z);
-            self.setYaw(WaypointState.getPlayYaw());
-            self.setPitch(WaypointState.getPlayPitch());
+            self.setYaw(WaypointState.getMoveYaw());
+            self.setPitch(WaypointState.getMovePitch());
             self.setVelocity(0, 0, 0);
         }
     }
